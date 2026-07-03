@@ -81,6 +81,32 @@ Each layer has a single responsibility:
 
 ---
 
+# Architecture Diagram
+
+           Customer Audio (.mp3)
+                     │
+                     ▼
+          FastAPI Upload Endpoint
+                     │
+                     ▼
+           Upload Validation Service
+                     │
+                     ▼
+            In-Memory Job Repository
+                     │
+                     ▼
+          OpenAI Whisper Service
+                     │
+                     ▼
+                Transcript
+                     │
+                     ▼
+              Groq LLM Service
+                     │
+                     ▼
+       Structured Dispatch Information
+
+
 # Tech Stack
 
 ## Backend
