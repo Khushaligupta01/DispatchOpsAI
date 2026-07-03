@@ -1,0 +1,25 @@
+[project]
+name = "dispatchops-ai"
+version = "1.0.0"
+description = "Asynchronous AI Dispatch & Revenue Optimization Engine for Skilled Trades"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+# Tell pytest-asyncio to auto-detect async tests
+asyncio_mode = "auto"
+# Where to find tests
+testpaths = ["tests"]
+# Show short test summary for failures
+addopts = "-v --tb=short"
+
+[tool.ruff]
+# Linting rules — fast Python linter
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "I"]          # pycodestyle, pyflakes, isort
+
+[tool.mypy]
+# Type checking configuration
+python_version = "3.10"
+strict = false                     # Relax for portfolio — enable per-module as you grow
+ignore_missing_imports = true

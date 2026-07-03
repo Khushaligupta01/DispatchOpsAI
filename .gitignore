@@ -1,0 +1,68 @@
+# ==================================================
+# DispatchOps AI — Git Ignore
+# ==================================================
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker
+.dockerignore
+
+# Audio uploads (do not commit call recordings)
+uploads/audio/*.mp3
+uploads/audio/*.wav
+uploads/audio/*.ogg
+
+# Alembic
+# (keep migrations but ignore auto-generated pyc)
+migrations/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db

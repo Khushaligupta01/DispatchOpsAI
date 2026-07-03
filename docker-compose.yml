@@ -1,0 +1,122 @@
+# ==================================================
+# DispatchOps AI — Docker Compose
+#
+# Defines the complete local development environment:
+# - api:      FastAPI web server (with hot reload)
+# - worker:   Celery background task processor
+# - db:       PostgreSQL database
+# - redis:    Redis broker + result backend
+#
+# Usage:
+#   docker-compose up --build       # First run or after requirements change
+#   docker-compose up               # Subsequent runs
+#   docker-compose down             # Stop and remove containers
+#   docker-compose logs -f api      # Follow logs for the API service
+#
+# Interview talking point:
+# "docker-compose up spins up the entire system: FastAPI, Celery worker,
+# PostgreSQL, and Redis. Any developer can clone the repo and run the
+# full stack locally with one command."
+# ==================================================
+
+version: "3.12"
+
+services:
+
+  # --- FastAPI Web Server ---
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime         # Use the runtime stage, not builder
+    container_name: dispatchops_api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/app                # Mount source code for hot reload in dev
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dispatchops_network
+    restart: unless-stopped
+
+  # --- Celery Worker ---
+  # Processes background tasks: download → transcribe → extract → rank → dispatch
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: dispatchops_worker
+    command: celery -A app.workers.celery_worker worker --loglevel=info --concurrency=2
+    volumes:
+      - .:/app
+      - audio_uploads:/app/uploads/audio  # Shared volume between API and worker
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dispatchops_network
+    restart: unless-stopped
+
+  # --- PostgreSQL Database ---
+  db:
+    image: postgres:16-alpine
+    container_name: dispatchops_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dispatchops}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dispatchops_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-dispatchops_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist data between restarts
+    ports:
+      - "5432:5432"           # Expose for local DB tools (TablePlus, psql, etc.)
+    networks:
+      - dispatchops_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dispatchops} -d ${POSTGRES_DB:-dispatchops_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # --- Redis ---
+  # Used as both Celery broker (task queue) and result backend
+  redis:
+    image: redis:7-alpine
+    container_name: dispatchops_redis
+    ports:
+      - "6379:6379"           # Expose for local inspection (redis-cli)
+    networks:
+      - dispatchops_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+# --- Named Volumes ---
+# Persist data between container restarts
+volumes:
+  postgres_data:
+    driver: local
+  audio_uploads:
+    driver: local
+
+# --- Network ---
+# All containers communicate on this internal network
+# Containers reference each other by service name (e.g., "db", "redis")
+networks:
+  dispatchops_network:
+    driver: bridge
