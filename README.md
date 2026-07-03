@@ -1,6 +1,6 @@
 # DispatchOps AI
 
-> AI-powered dispatch intake prototype for skilled trades built with FastAPI, OpenAI Whisper, and Groq LLM.
+> AI-powered dispatch intake prototype that converts customer service calls into structured dispatch information using Whisper and LLMs.
 
 DispatchOps AI demonstrates how customer service calls can be transformed into structured dispatch information using modern AI pipelines.
 
