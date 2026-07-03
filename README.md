@@ -276,6 +276,12 @@ The project focuses on backend engineering, AI integration, and clean software a
 
 ---
 
+## Note
+
+The transcription pipeline is fully functional.
+
+The extraction endpoint requires a valid Groq API key configured in `.env` before it can call the external LLM service.
+
 # License
 
 MIT
