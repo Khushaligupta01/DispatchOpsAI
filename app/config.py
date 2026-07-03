@@ -45,7 +45,8 @@ class Settings(BaseSettings):
     app_log_level: str = "INFO"
 
     # --- PostgreSQL ---
-    database_url: str
+    # Optional until Feature 5 (Database layer) — defaults to empty string
+    database_url: str = ""
 
     # --- Redis ---
     redis_url: str = "redis://redis:6379/0"
@@ -72,7 +73,9 @@ class Settings(BaseSettings):
     langfuse_host: str = "https://cloud.langfuse.com"
 
     # --- Audio Storage ---
-    audio_upload_dir: str = "uploads/audio"
+    # Base directory for all uploaded audio files.
+    # Feature 2 organizes files under: uploads/YYYY/MM/DD/<uuid>.<ext>
+    audio_upload_dir: str = "uploads"
 
     @property
     def is_development(self) -> bool:

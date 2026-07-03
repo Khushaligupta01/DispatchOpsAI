@@ -114,11 +114,55 @@ Customer Call → Twilio → FastAPI Webhook → Redis Queue
 ## Features (Incremental Build)
 
 - [x] **Feature 1** — Project scaffold, config, logging, Docker
-- [ ] **Feature 2** — Twilio webhook + job creation
-- [ ] **Feature 3** — Database layer (PostgreSQL + SQLAlchemy)
+- [x] **Feature 2** — Audio upload API, job creation, repository pattern
+- [ ] **Feature 3** — Celery worker + Redis task queue
 - [ ] **Feature 4** — Whisper transcription pipeline
-- [ ] **Feature 5** — Groq LLM extraction + confidence scoring
-- [ ] **Feature 6** — Technician ranking engine
-- [ ] **Feature 7** — Dispatch service + Langfuse tracing
-- [ ] **Feature 8** — Job status API
-- [ ] **Feature 9** — Tests + documentation
+- [ ] **Feature 5** — PostgreSQL + SQLAlchemy (replaces in-memory repository)
+- [ ] **Feature 6** — Groq LLM extraction + confidence scoring
+- [ ] **Feature 7** — Technician ranking engine
+- [ ] **Feature 8** — Dispatch service + Langfuse tracing
+- [ ] **Feature 9** — Job status API + tests
+
+---
+
+## API Endpoints
+
+### POST /api/v1/jobs/upload-audio
+
+Upload a customer call recording. Returns a `job_id` to track the pipeline.
+
+**Supported formats:** `audio/wav`, `audio/mpeg`, `audio/mp3`, `audio/x-m4a`
+**Maximum size:** 20 MB
+
+**Example request (curl):**
+```bash
+curl -X POST http://localhost:8000/api/v1/jobs/upload-audio \
+  -F "file=@customer_call.wav;type=audio/wav"
+```
+
+**Example response (201 Created):**
+```json
+{
+  "job_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "status": "UPLOADED",
+  "filename": "3fa85f64-5717-4562-b3fc-2c963f66afa6.wav",
+  "original_filename": "customer_call.wav",
+  "content_type": "audio/wav",
+  "file_size": 184320,
+  "uploaded_at": "2026-07-03T20:00:00Z",
+  "message": "Audio uploaded successfully."
+}
+```
+
+**Error responses:**
+- `400` — Unsupported file type
+- `413` — File exceeds 20 MB
+- `500` — Unexpected server error
+
+**Upload storage:** Files are saved to `uploads/YYYY/MM/DD/<uuid>.<ext>`
+
+### GET /api/v1/health/live
+Liveness probe — returns 200 if the process is running.
+
+### GET /api/v1/health/ready
+Readiness probe — returns 200 if the app is ready to serve requests.

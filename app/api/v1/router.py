@@ -19,7 +19,7 @@ creating a new router file and registering it here. main.py doesn't change."
 
 from fastapi import APIRouter
 
-from app.api.v1 import health
+from app.api.v1 import health, jobs
 
 # The main v1 router — all sub-routers are included here
 api_router = APIRouter(prefix="/api/v1")
@@ -27,8 +27,10 @@ api_router = APIRouter(prefix="/api/v1")
 # Feature 1: Health checks
 api_router.include_router(health.router)
 
+# Feature 2: Audio upload and job creation
+api_router.include_router(jobs.router)
+
 # Future features will be added here:
-# api_router.include_router(webhooks.router)   # Feature 2: Twilio webhook
-# api_router.include_router(jobs.router)       # Feature 3: Job management
+# api_router.include_router(webhooks.router)    # Feature 3: Twilio webhook
 # api_router.include_router(technicians.router) # Feature 4: Technician roster
-# api_router.include_router(dispatch.router)   # Feature 5: Dispatch history
+# api_router.include_router(dispatch.router)    # Feature 6: Dispatch history
