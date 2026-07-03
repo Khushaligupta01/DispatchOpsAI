@@ -30,11 +30,10 @@ from app.repositories.job_repository import InMemoryJobRepository
 from app.schemas.job import Job, JobStatus
 from app.services.transcription_service import (
     AudioFileNotFoundError,
-    JobNotFoundError,
     TranscriptionService,
 )
 from app.transcription.whisper_service import TranscriptionResult
-from app.utils.exceptions import TranscriptionError
+from app.utils.exceptions import JobNotFoundError, TranscriptionError
 
 
 # ---------------------------------------------------------------------------

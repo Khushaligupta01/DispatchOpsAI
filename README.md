@@ -1,168 +1,244 @@
 # DispatchOps AI
 
-**Asynchronous AI Dispatch & Revenue Optimization Engine for Skilled Trades**
+> AI-powered dispatch intake prototype for skilled trades built with FastAPI, OpenAI Whisper, and Groq LLM.
 
-DispatchOps AI automatically handles the entire dispatch workflow when a customer calls a service company (HVAC, Plumbing, Electrical, Roofing):
+DispatchOps AI demonstrates how customer service calls can be transformed into structured dispatch information using modern AI pipelines.
 
-1. Receives the customer call via **Twilio**
-2. Downloads the call recording
-3. Transcribes the audio using **Whisper**
-4. Extracts structured job details using **Groq LLM**
-5. Scores available technicians using **Pandas/NumPy**
-6. Dispatches the best-matched technician
-7. Tracks every AI step with **Langfuse**
+The application accepts customer call recordings, validates and stores audio files, transcribes speech using OpenAI Whisper, and provides an API for extracting structured dispatch information using a Large Language Model.
 
-Everything runs asynchronously via **Redis + Celery**.
+This project was built as a backend engineering prototype focused on clean architecture, modular design, and AI integration.
 
 ---
 
-## Tech Stack
+# Features
 
-| Layer | Technology |
-|---|---|
-| API | FastAPI + Pydantic v2 |
-| Task Queue | Celery + Redis |
-| Database | PostgreSQL + SQLAlchemy Async |
-| Transcription | OpenAI Whisper (local) |
-| LLM | Groq API + LangChain |
-| Telephony | Twilio |
-| Observability | Langfuse |
-| Data Processing | Pandas + NumPy |
-| Containerization | Docker + Docker Compose |
-| Testing | pytest + pytest-asyncio |
+## Audio Upload
+
+- Upload customer call recordings (MP3, WAV, M4A)
+- File validation
+- Secure UUID-based filenames
+- Metadata tracking
+- Automatic job creation
 
 ---
 
-## Quickstart
+## Speech-to-Text
 
-```bash
-# 1. Clone and enter the project
-git clone https://github.com/yourname/dispatchops-ai
-cd dispatchops-ai
+- OpenAI Whisper integration
+- Automatic transcription
+- Audio duration detection
+- Transcript storage
+- Job status tracking
 
-# 2. Copy environment template
-cp .env.example .env
-# Fill in your API keys in .env
+---
 
-# 3. Start all services
-docker-compose up --build
+## Structured Information Extraction
 
-# 4. Verify the app is running
-curl http://localhost:8000/api/v1/health/live
-# {"status":"ok","service":"dispatchops-ai"}
+- LLM-powered extraction pipeline
+- Extracts:
 
-# 5. Open the API docs
-# http://localhost:8000/docs
+  - Customer Name
+  - Address
+  - Service Issue
+  - Trade Category
+  - Summary
+
+- Modular design for Groq/OpenAI compatible models
+
+---
+
+## Clean Backend Architecture
+
+```
+API
+ │
+ ▼
+Services
+ │
+ ▼
+Repository
+ │
+ ▼
+Storage
+```
+
+Each layer has a single responsibility:
+
+- API handles HTTP requests
+- Services contain business logic
+- Repository manages persistence
+- Models define request/response contracts
+
+---
+
+# Tech Stack
+
+## Backend
+
+- Python 3.10
+- FastAPI
+- Pydantic
+- Uvicorn
+
+## AI
+
+- OpenAI Whisper
+- LangChain
+- Groq LLM
+
+## Utilities
+
+- Structured Logging
+- Dependency Injection
+- Async FastAPI
+- UUID File Storage
+
+---
+
+# Project Structure
+
+```
+app/
+
+├── api/
+├── services/
+├── repositories/
+├── models/
+├── transcription/
+├── extraction/
+├── utils/
+└── prompts/
 ```
 
 ---
 
-## Running Tests
+# API Workflow
 
-```bash
-# Install dependencies locally (for running tests outside Docker)
-pip install -r requirements.txt
-
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=app tests/
+```
+Customer Audio
+       │
+       ▼
+Upload Audio
+       │
+       ▼
+Validate File
+       │
+       ▼
+Create Job
+       │
+       ▼
+Whisper Transcription
+       │
+       ▼
+Transcript
+       │
+       ▼
+LLM Extraction
+       │
+       ▼
+Structured Dispatch Information
 ```
 
 ---
 
-## Project Structure
+# API Endpoints
 
-```
-dispatchops-ai/
-├── app/
-│   ├── main.py              # FastAPI app factory
-│   ├── config.py            # All environment variables (Pydantic Settings)
-│   ├── dependencies.py      # FastAPI dependency injection
-│   ├── api/v1/              # HTTP routes (no business logic)
-│   ├── services/            # Business logic layer
-│   ├── repositories/        # Database queries
-│   ├── workers/             # Celery tasks
-│   ├── transcription/       # Whisper speech-to-text
-│   ├── llm/                 # Groq client + prompt templates
-│   ├── ranking/             # Technician scoring engine
-│   ├── integrations/        # Twilio + Langfuse clients
-│   ├── db/                  # SQLAlchemy models + session
-│   ├── schemas/             # Pydantic request/response models
-│   └── utils/               # Logger, exceptions, retry
-├── tests/
-├── uploads/audio/           # Downloaded call recordings
-└── docs/
-```
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /api/v1/health/live | Liveness probe |
+| GET | /api/v1/health/ready | Readiness probe |
+| POST | /api/v1/jobs/upload-audio | Upload customer audio |
+| POST | /api/v1/jobs/{job_id}/transcribe | Generate transcript |
+| POST | /api/v1/jobs/{job_id}/extract | Extract structured information |
 
 ---
 
-## System Flow
+# Example Response
 
-```
-Customer Call → Twilio → FastAPI Webhook → Redis Queue
-    → Celery Worker → Whisper Transcription
-    → Groq Extraction → Confidence Check
-    → (>= 0.7) Technician Ranking → Dispatch → PostgreSQL
-    → (< 0.7) Mark for Human Review
-    → Langfuse traces every step
-```
-
----
-
-## Features (Incremental Build)
-
-- [x] **Feature 1** — Project scaffold, config, logging, Docker
-- [x] **Feature 2** — Audio upload API, job creation, repository pattern
-- [ ] **Feature 3** — Celery worker + Redis task queue
-- [ ] **Feature 4** — Whisper transcription pipeline
-- [ ] **Feature 5** — PostgreSQL + SQLAlchemy (replaces in-memory repository)
-- [ ] **Feature 6** — Groq LLM extraction + confidence scoring
-- [ ] **Feature 7** — Technician ranking engine
-- [ ] **Feature 8** — Dispatch service + Langfuse tracing
-- [ ] **Feature 9** — Job status API + tests
-
----
-
-## API Endpoints
-
-### POST /api/v1/jobs/upload-audio
-
-Upload a customer call recording. Returns a `job_id` to track the pipeline.
-
-**Supported formats:** `audio/wav`, `audio/mpeg`, `audio/mp3`, `audio/x-m4a`
-**Maximum size:** 20 MB
-
-**Example request (curl):**
-```bash
-curl -X POST http://localhost:8000/api/v1/jobs/upload-audio \
-  -F "file=@customer_call.wav;type=audio/wav"
-```
-
-**Example response (201 Created):**
 ```json
 {
-  "job_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "status": "UPLOADED",
-  "filename": "3fa85f64-5717-4562-b3fc-2c963f66afa6.wav",
-  "original_filename": "customer_call.wav",
-  "content_type": "audio/wav",
-  "file_size": 184320,
-  "uploaded_at": "2026-07-03T20:00:00Z",
-  "message": "Audio uploaded successfully."
+  "customer_name": "John Smith",
+  "address": "24 Green Park Road",
+  "issue": "Air conditioner not cooling",
+  "trade": "HVAC",
+  "summary": "Customer reports AC cooling issue at residential property."
 }
 ```
 
-**Error responses:**
-- `400` — Unsupported file type
-- `413` — File exceeds 20 MB
-- `500` — Unexpected server error
+---
 
-**Upload storage:** Files are saved to `uploads/YYYY/MM/DD/<uuid>.<ext>`
+# Local Setup
 
-### GET /api/v1/health/live
-Liveness probe — returns 200 if the process is running.
+Clone the repository
 
-### GET /api/v1/health/ready
-Readiness probe — returns 200 if the app is ready to serve requests.
+```bash
+git clone https://github.com/Khushaligupta01/DispatchOpsAI.git
+```
+
+Create virtual environment
+
+```bash
+python -m venv .venv
+```
+
+Activate
+
+Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Run
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Swagger UI
+
+```
+http://127.0.0.1:8000/docs
+```
+
+---
+
+# Current Status
+
+Implemented
+
+- Audio upload
+- Audio validation
+- Whisper transcription
+- Job lifecycle
+- REST APIs
+- OpenAPI documentation
+- Modular backend architecture
+
+Planned Improvements
+
+- PostgreSQL persistence
+- Background task queue
+- Technician matching algorithm
+- Dispatch optimization
+- Production observability
+
+---
+
+# Why I Built This
+
+I wanted to explore how modern AI systems can automate the first stage of dispatch operations for skilled trades by converting unstructured customer calls into structured service requests.
+
+The project focuses on backend engineering, AI integration, and clean software architecture rather than frontend development.
+
+---
+
+# License
+
+MIT

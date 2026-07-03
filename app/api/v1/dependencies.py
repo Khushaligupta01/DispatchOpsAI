@@ -47,7 +47,9 @@ from __future__ import annotations
 from functools import lru_cache
 
 from app.config import get_settings
+from app.llm.groq_client import GroqClient
 from app.repositories.job_repository import InMemoryJobRepository
+from app.services.extraction_service import ExtractionService
 from app.services.transcription_service import TranscriptionService
 from app.services.upload_service import UploadService
 from app.transcription.whisper_service import WhisperService
@@ -113,4 +115,39 @@ def get_transcription_service() -> TranscriptionService:
     return TranscriptionService(
         repository=_job_repository,
         whisper_service=_get_whisper_service(),
+    )
+
+
+@lru_cache
+def _get_groq_client() -> GroqClient:
+    """
+    Load and cache the GroqClient singleton.
+
+    Uses @lru_cache so the LangChain ChatGroq client is built once.
+    The api_key and model_name come from Settings, which are also cached.
+
+    Intentionally private — external code uses get_extraction_service().
+    """
+    settings = get_settings()
+    return GroqClient(
+        api_key=settings.groq_api_key,
+        model_name=settings.groq_model,
+        temperature=0.0,
+    )
+
+
+def get_extraction_service() -> ExtractionService:
+    """
+    Dependency provider for ExtractionService.
+
+    Returns an ExtractionService backed by:
+    - The shared in-memory repository.
+    - The cached GroqClient singleton.
+
+    FastAPI injects this into any route that declares:
+        extraction_service: ExtractionService = Depends(get_extraction_service)
+    """
+    return ExtractionService(
+        repository=_job_repository,
+        groq_client=_get_groq_client(),
     )

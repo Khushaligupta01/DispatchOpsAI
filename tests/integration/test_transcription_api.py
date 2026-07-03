@@ -32,7 +32,6 @@ from app.services.transcription_service import TranscriptionService
 from app.services.upload_service import UploadService
 from app.transcription.whisper_service import TranscriptionResult
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------

@@ -65,11 +65,18 @@ class LowConfidenceError(DispatchOpsError):
     This is NOT a system error — it means the LLM was uncertain about
     the job details and a human should review the call instead of
     auto-dispatching.
+    """
+    pass
 
-    Interview talking point:
-    "We don't blindly trust the LLM. If confidence is below 0.7,
-    we route the job to a human review queue instead of auto-dispatching.
-    This is a deliberate AI safety pattern."
+
+# --- Job Domain (shared across pipeline services) ---
+
+class JobNotFoundError(DispatchOpsError):
+    """
+    Raised when a job_id does not exist in the repository.
+
+    Defined here (not in a service module) because multiple services
+    raise this error — defining it once avoids duplication and circular imports.
     """
     pass
 

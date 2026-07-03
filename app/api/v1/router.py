@@ -15,7 +15,7 @@ Why version the API (/v1/)?
 
 from fastapi import APIRouter
 
-from app.api.v1 import health, jobs, transcription
+from app.api.v1 import extraction, health, jobs, transcription
 
 # The main v1 router — all sub-routers are included here
 api_router = APIRouter(prefix="/api/v1")
@@ -29,7 +29,5 @@ api_router.include_router(jobs.router)
 # Feature 3: Whisper transcription
 api_router.include_router(transcription.router)
 
-# Future features will be added here:
-# api_router.include_router(webhooks.router)    # Twilio webhook
-# api_router.include_router(technicians.router) # Technician roster
-# api_router.include_router(dispatch.router)    # Dispatch history
+# Feature 4: LLM extraction
+api_router.include_router(extraction.router)

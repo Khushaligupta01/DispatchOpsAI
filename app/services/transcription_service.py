@@ -45,19 +45,15 @@ observable in the repository — not hidden behind a misleading UPLOADED."
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 
 from app.repositories.job_repository import AbstractJobRepository
 from app.schemas.job import Job, JobStatus
 from app.transcription.whisper_service import WhisperService
-from app.utils.exceptions import DispatchOpsError, TranscriptionError
+from app.utils.exceptions import DispatchOpsError, JobNotFoundError, TranscriptionError
 from app.utils.logger import get_logger
 
 logger = get_logger(__name__)
-
-
-class JobNotFoundError(DispatchOpsError):
-    """Raised when a job_id does not exist in the repository."""
-    pass
 
 
 class AudioFileNotFoundError(DispatchOpsError):
@@ -118,7 +114,6 @@ class TranscriptionService:
             )
 
         # Step 2 — Validate the audio file exists on disk
-        from pathlib import Path
         if not Path(job.file_path).exists():
             logger.error(
                 "Transcription failed — audio file missing from disk",

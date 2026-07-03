@@ -41,11 +41,12 @@ logger = get_logger(__name__)
 # Module-level import so tests can patch this name via:
 #   patch("app.transcription.whisper_service.whisper")
 # If openai-whisper is not installed, whisper is None and WhisperService
-# will raise TranscriptionError on instantiation (not at import time).
 try:
-    import whisper  # type: ignore[import]
-except ImportError:
-    whisper = None  # type: ignore[assignment]
+    import whisper
+    print("✅ Whisper imported successfully")
+except Exception as e:
+    print("❌ Whisper import failed:", repr(e))
+    raise
 
 
 @dataclass
