@@ -141,6 +141,16 @@ Structured Dispatch Information
 
 ---
 
+# DispatchOps AI
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+
+![FastAPI](https://img.shields.io/badge/FastAPI-0.116-green)
+
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+![Status](https://img.shields.io/badge/Status-Prototype-orange)
+
 # API Endpoints
 
 | Method | Endpoint | Description |
