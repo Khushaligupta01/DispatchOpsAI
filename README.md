@@ -1,6 +1,16 @@
 # DispatchOps AI
 
 > AI-powered dispatch intake prototype that converts customer service calls into structured dispatch information using Whisper and LLMs.
+# DispatchOps AI
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+
+![FastAPI](https://img.shields.io/badge/FastAPI-0.116-green)
+
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
+![Status](https://img.shields.io/badge/Status-Prototype-orange)
+
 
 DispatchOps AI demonstrates how customer service calls can be transformed into structured dispatch information using modern AI pipelines.
 
@@ -141,15 +151,6 @@ Structured Dispatch Information
 
 ---
 
-# DispatchOps AI
-
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-
-![FastAPI](https://img.shields.io/badge/FastAPI-0.116-green)
-
-![License](https://img.shields.io/badge/License-MIT-yellow)
-
-![Status](https://img.shields.io/badge/Status-Prototype-orange)
 
 # API Endpoints
 
