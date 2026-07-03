@@ -98,11 +98,28 @@ class AbstractJobRepository(abc.ABC):
         """
         Update the status of an existing job.
 
-        Used by Celery tasks in later features to advance pipeline state.
+        Used by pipeline stages to advance job state.
 
         Args:
             job_id: The UUID string of the job.
             status: The new JobStatus to set.
+
+        Returns:
+            The updated Job if found, None if the job_id doesn't exist.
+        """
+        ...
+
+    @abc.abstractmethod
+    async def update_job(self, job: Job) -> Optional[Job]:
+        """
+        Persist a full Job update, replacing the stored copy entirely.
+
+        Used when multiple fields change at once — e.g. after transcription,
+        we set transcript, transcribed_at, duration_seconds, and status
+        in a single atomic operation instead of four separate calls.
+
+        Args:
+            job: The updated Job object. Must already exist (job_id must match).
 
         Returns:
             The updated Job if found, None if the job_id doesn't exist.
@@ -173,3 +190,26 @@ class InMemoryJobRepository(AbstractJobRepository):
             extra={"job_id": job_id, "new_status": status},
         )
         return updated_job
+
+    async def update_job(self, job: Job) -> Optional[Job]:
+        """
+        Replace the stored job with the provided updated copy.
+
+        Used when multiple fields change simultaneously — e.g. after
+        transcription sets transcript, transcribed_at, duration_seconds,
+        and status in one operation.
+        """
+        if job.job_id not in self._store:
+            logger.warning(
+                "Cannot update job — job not found",
+                extra={"job_id": job.job_id},
+            )
+            return None
+
+        self._store[job.job_id] = job
+
+        logger.info(
+            "Job updated",
+            extra={"job_id": job.job_id, "status": job.status},
+        )
+        return job
